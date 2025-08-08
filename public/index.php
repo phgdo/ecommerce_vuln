@@ -28,8 +28,8 @@ $username = $is_logged_in ? $_SESSION['username'] : null;
         </nav>
         <div class="header-right">
             <?php if (!isset($_SESSION['user'])): ?>
-                <button id="loginBtn">Đăng nhập</button>
-                <button id="registerBtn">Đăng ký</button>
+                <a href="login.php" class="btn-link">Đăng nhập</a>
+                <a href="register.php" class="btn-link">Đăng ký</a>
             <?php else: ?>
                 <?php if ($_SESSION['role'] === 'admin'): ?>
                     <a href="admin.php" class="admin-dashboard">Admin Dashboard</a>

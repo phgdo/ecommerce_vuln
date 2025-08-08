@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'config.php'; // file kết nối MySQL
+require 'config/config.php'; // file kết nối MySQL
 
 $error = '';
 $success = '';
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký</title>
-    <link rel="stylesheet" href="public/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/login_register.css">
 </head>
 
 <body>
