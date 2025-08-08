@@ -3,15 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const userIcon = document.getElementById("userIcon");
     const dropdown = document.getElementById("userDropdown");
 
-    if (userIcon && dropdown) {
+    if (userIcon) {
         userIcon.addEventListener("click", () => {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        });
-
-        document.addEventListener("click", (e) => {
-            if (!userIcon.contains(e.target) && !dropdown.contains(e.target)) {
-                dropdown.style.display = "none";
-            }
+            userDropdown.style.display =
+                userDropdown.style.display === "block" ? "none" : "block";
         });
     }
 

@@ -19,34 +19,24 @@ $username = $is_logged_in ? $_SESSION['username'] : null;
 <body>
     <!-- HEADER -->
     <header>
-        <div class="logo"><a href="index.php">NNshop</a></div>
+        <a href="index.php" class="logo">NNshop</a>
         <nav>
-            <ul class="nav-links">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Shop</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Shop</a>
+            <a href="#">Contact</a>
         </nav>
-        <div class="icons">
-            <a href="#"><i class="fas fa-shopping-cart"></i></a>
-            <div class="user-dropdown">
-                <i class="fas fa-user" id="userIcon"></i>
-                <div class="dropdown-content" id="userDropdown">
-                    <?php if (!$is_logged_in): ?>
-                        <form method="POST" action="login.php">
-                            <input type="text" name="username" placeholder="Username">
-                            <input type="password" name="password" placeholder="Password">
-                            <button type="submit">Login</button>
-                            <a href="register.php">Register</a>
-                        </form>
-                    <?php else: ?>
-                        <p>Hello, <strong><?= htmlspecialchars($username) ?></strong></p>
-                        <a href="change_password.php">Change Password</a>
-                        <a href="logout.php">Logout</a>
-                    <?php endif; ?>
-                </div>
-            </div>
+        <div class="header-right">
+            <?php if (!isset($_SESSION['user'])): ?>
+                <button id="loginBtn">Đăng nhập</button>
+                <button id="registerBtn">Đăng ký</button>
+            <?php else: ?>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+                    <a href="admin.php" class="admin-dashboard">Admin Dashboard</a>
+                <?php endif; ?>
+                <div class="user-icon">👤</div>
+                <div class="cart-icon">🛒</div>
+            <?php endif; ?>
         </div>
     </header>
 
