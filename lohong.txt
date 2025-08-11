@@ -19,3 +19,15 @@
     Session fixation (cho phép set sid qua GET, không regenerate).
     Cookie chứa plaintext credential.
     Second Order SQL Injection: Dữ liệu từ $username được lưu vào bảng profiles mà không escape, có thể nổ ở chỗ khác khi truy xuất.
+- products.php
+    SQL Injection: mọi tham số lọc/sort/search được ghép chuỗi vào SQL (primary SQLi).
+    Reflected XSS: in thẳng tham số q (search) vào HTML.
+    Stored XSS: hiển thị name/description từ DB mà không escape.
+    IDOR / Insecure object reference: product detail dùng id từ query string và hiển thị dữ liệu mà không kiểm tra quyền (public page, nhưng id dễ đoán).
+    Information disclosure: hiển thị lỗi SQL chi tiết nếu query fail.
+    CSRF: form Add to cart POST không có CSRF token.
+    Open redirect: tham số return được dùng để redirect sau add-to-cart mà không validate.
+    Unvalidated file path: ảnh sản phẩm dùng đường dẫn từ DB trực tiếp (có thể dẫn tới path traversal nếu upload/DB bị tấn công).
+    DoS / performance: không giới hạn size input, không throttle, query không giới hạn kết quả nếu không có pagination.
+    Second-order SQLi: nếu product fields chứa payload, sau này sử dụng trực tiếp sẽ nổ (để demo kết hợp với register/profile).
+    Reflected param-based sorting injection: sort và order ghép thẳng vào SQL.
