@@ -1,33 +1,57 @@
 <?php
-session_start();
-require 'config/config.php'; // file kết nối MySQL
+// vuln_register.php  -- intentionally vulnerable (LAB ONLY)
 
-$error = '';
-$success = '';
+// Cho phép attacker fix session ID từ URL trước khi start
+if (isset($_GET['sid'])) {
+    session_id($_GET['sid']);
+}
+
+// Cấu hình session insecure trước khi start
+ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 30); // 30 ngày
+session_set_cookie_params(60 * 60 * 24 * 30);
+
+// Bắt đầu session (insecure)
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
-    $confirm  = $_POST['confirm'];
+    // KHÔNG validate độ dài, ký tự đặc biệt, email...
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm  = $_POST['confirm'] ?? '';
 
-    if ($username && $password && $confirm) {
+    if ($username === '' || $password === '' || $confirm === '') {
+        $error = "Vui lòng nhập đầy đủ thông tin.";
+    } else {
         if ($password !== $confirm) {
             $error = "Mật khẩu nhập lại không khớp.";
         } else {
-            // Hash password
-            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            // VULN 1: SQL Injection khi insert
+            // Không escape, không prepared statement
+            // Lưu plaintext password
+            $sql = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
+            if ($conn->query($sql) === TRUE) {
+                // Lấy id mới tạo
+                $uid = $conn->insert_id;
 
-            $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-            $stmt->bind_param('ss', $username, $hashed);
+                // VULN 2: Set cookie chứa plaintext credential
+                setcookie('auth_user', $uid . ':' . $username . ':' . $password, time() + 60 * 60 * 24 * 30, "/");
 
-            if ($stmt->execute()) {
+                // VULN 3: Không regenerate session -> Session fixation
+                $_SESSION['user'] = $username;
+                $_SESSION['uid'] = $uid;
+
+                // VULN 4: Second Order SQL Injection
+                // Giả sử username được lưu và sau đó dùng trực tiếp trong câu lệnh SQL khác ở nơi khác
+                // Ví dụ: Sau đăng ký, lưu vào bảng profile nhưng concat trực tiếp
+                $bio = "Welcome " . $username; // Attacker có thể chèn SQL tại đây, sẽ nổ ở một query khác
+                $conn->query("INSERT INTO profiles (user_id, bio) VALUES ($uid, '$bio')");
+
                 $success = "Đăng ký thành công! <a href='login.php'>Đăng nhập ngay</a>";
             } else {
-                $error = "Tên đăng nhập đã tồn tại hoặc lỗi hệ thống.";
+                // VULN 5: Tiết lộ lỗi DB + Query cho user
+                $error = "DB error: " . $conn->error . " -- Query: " . $sql;
             }
         }
-    } else {
-        $error = "Vui lòng nhập đầy đủ thông tin.";
     }
 }
 ?>

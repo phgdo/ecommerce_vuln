@@ -1,0 +1,21 @@
+- login.php:
+    SQL Injection qua $username (no escape, no prepared statement).
+    Plaintext password so sánh trực tiếp, lưu cookie dạng id:username:password.
+    Session fixation cho phép set sid qua GET.
+    Session timeout dài (30 ngày).
+    Tiết lộ thông tin lỗi chi tiết (DB error: ... Query: ...).
+    Phân biệt user không tồn tại / sai mật khẩu.
+    Không giới hạn số lần đăng nhập, không captcha.
+    Cho phép đăng nhập nhiều thiết bị cùng lúc.
+- register.php:
+    SQL Injection trực tiếp khi INSERT ('$username', '$password' không escape).
+    Lưu mật khẩu dạng plaintext.
+    Không kiểm tra độ dài input → DoS.
+    Không kiểm tra username tồn tại trước khi insert → lỗi SQL.
+    Tiết lộ lỗi MySQL & câu query ra giao diện.
+    Không xác thực định dạng input → có thể chứa HTML/JS → Stored XSS.
+    Không giới hạn số lần đăng ký → spam account.
+    ID tuần tự, dễ đoán.
+    Session fixation (cho phép set sid qua GET, không regenerate).
+    Cookie chứa plaintext credential.
+    Second Order SQL Injection: Dữ liệu từ $username được lưu vào bảng profiles mà không escape, có thể nổ ở chỗ khác khi truy xuất.
