@@ -65,17 +65,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <div class="form-container">
-        <h2>Đăng ký</h2>
-        <?php if ($error): ?><p class="error"><?= $error ?></p><?php endif; ?>
-        <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Tên đăng nhập">
-            <input type="password" name="password" placeholder="Mật khẩu">
-            <input type="password" name="confirm" placeholder="Nhập lại mật khẩu">
-            <button type="submit">Đăng ký</button>
-        </form>
-        <p>Đã có tài khoản? <a href="login.php">Đăng nhập</a></p>
+    <a href="index.php" class="back-home">← Quay lại trang chủ</a>
+    <div class="page-container">
+
+        <div class="form-container">
+            <h2>Đăng ký</h2>
+            <?php if ($error): ?><p class="error"><?= $error ?></p><?php endif; ?>
+            <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
+            <form method="POST">
+                <input type="text" name="username" placeholder="Tên đăng nhập">
+                <input type="password" name="password" placeholder="Mật khẩu">
+                <input type="password" name="confirm" placeholder="Nhập lại mật khẩu">
+                <button type="submit">Đăng ký</button>
+            </form>
+            <p>Đã có tài khoản? <a href="login.php">Đăng nhập</a></p>
+        </div>
     </div>
 </body>
 

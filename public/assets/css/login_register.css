@@ -8,10 +8,6 @@
 
 body {
     background: #f4f6f8;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
 }
 
 .form-container {
@@ -91,4 +87,31 @@ a:hover {
     margin-bottom: 10px;
     border-radius: 6px;
     font-size: 14px;
+}
+
+.back-home {
+    position: fixed;
+    /* Cố định ở góc màn hình */
+    top: 20px;
+    left: 20px;
+    /* Xanh lá */
+    padding: 8px 14px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.3s ease, transform 0.2s ease;
+    z-index: 1000;
+    /* Đảm bảo nổi lên trên */
+}
+
+.back-home:hover {
+    color: green;
+    transform: translateY(-1px);
+}
+
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }

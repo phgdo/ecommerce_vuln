@@ -82,20 +82,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <div class="form-container">
-        <h2>Đăng nhập</h2>
+    <a href="index.php" class="back-home">← Quay lại trang chủ</a>
+    <div class="page-container">
+        <div class="form-container">
+            <h2>Đăng nhập</h2>
 
-        <?php if ($error): ?>
-            <div class="error"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
 
-        <form method="POST" autocomplete="off">
-            <input type="text" name="username" placeholder="Tên đăng nhập">
-            <input type="password" name="password" placeholder="Mật khẩu">
-            <button type="submit">Đăng nhập</button>
-        </form>
+            <form method="POST" autocomplete="off">
+                <input type="text" name="username" placeholder="Tên đăng nhập">
+                <input type="password" name="password" placeholder="Mật khẩu">
+                <button type="submit">Đăng nhập</button>
+            </form>
 
-        <p>Chưa có tài khoản? <a href="register.php">Đăng ký</a></p>
+            <p>Chưa có tài khoản? <a href="register.php">Đăng ký</a></p>
+        </div>
     </div>
 </body>
 
