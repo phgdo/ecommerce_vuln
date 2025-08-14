@@ -12,7 +12,7 @@ session_set_cookie_params(60 * 60 * 24 * 30);
 
 // Bắt đầu session (insecure)
 session_start();
-
+require 'config/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // KHÔNG validate độ dài, ký tự đặc biệt, email...
     $username = $_POST['username'] ?? '';
