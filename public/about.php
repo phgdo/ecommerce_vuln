@@ -88,6 +88,12 @@ session_start();
             </div>
 
             <div class="about-section">
+                <h2>Giấy chứng nhận cửa hàng uy tín</h2>
+                <a href="/view_file.php?file=chungnhan.pdf">Giấy chứng nhận</a>
+
+            </div>
+
+            <div class="about-section">
                 <h2>Liên hệ</h2>
                 <p>Email: contact@ecommerce.com</p>
                 <p>Hotline: 0123 456 789</p>

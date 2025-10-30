@@ -1,0 +1,11 @@
+Input validation (A) → register.php, update_profile.php, thay đổi cookie
+output => header (hàm xss_ouput trong functions, chỉ cần xóa hàm này đi thì sẽ dùng hàm an toàn)
+Error Handling & Logging => login sqli (ok) + brute force (ok)  + ghi log apache + admin_view_logs (chưa kiểm tra, cần kiểm tra lại đường dẫn đến apache log) tạm
+ Authentication and Password Management =>> admin_view_logs (ok) + header (ok) + token_reset.php
+ Session Management =>> thay đổi cookie + xss ở header hoặc admin_view_logs đều được (chưa)
+ access control =>> sqli login drop database (ok)
+ data protection =>> cho tìm trên github (ok)
+ database security =>> db_connect.php (ok)
+ file Management =>> view_file.php + upload avatar
+ System Configuration =>> tấn công apache, list các thư mục, truy cập robots.txt
+

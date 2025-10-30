@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/admin_view_logs.php
+Disallow: /admin/users_management.php
+Disallow: /admin/employees_management.php

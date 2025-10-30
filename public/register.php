@@ -1,81 +1,72 @@
 <?php
-// vuln_register.php  -- intentionally vulnerable (LAB ONLY)
+// public/register.php
+// Form đăng ký với kiểm tra maxlength phía client, không kiểm tra phía server (vuln A)
 
 // Cho phép attacker fix session ID từ URL trước khi start
 if (isset($_GET['sid'])) {
     session_id($_GET['sid']);
 }
-
-// Cấu hình session insecure trước khi start
-ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 30); // 30 ngày
+ini_set('session.gc_maxlifetime', 60 * 60 * 24 * 30);
 session_set_cookie_params(60 * 60 * 24 * 30);
-
-// Bắt đầu session (insecure)
 session_start();
-require 'config/config.php';
+
+// Include functions.php trong cùng thư mục
+$func = __DIR__ . '/functions.php';
+if (!file_exists($func)) {
+    error_log("Missing include: $func");
+    http_response_code(500);
+    echo "Internal server error. Please contact admin.";
+    exit;
+}
+require_once $func;
+
+$error = '';
+$success = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // KHÔNG validate độ dài, ký tự đặc biệt, email...
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm'] ?? '';
-
-    if ($username === '' || $password === '' || $confirm === '') {
-        $error = "Vui lòng nhập đầy đủ thông tin.";
+    $res = register_user($_POST);
+    if ($res['ok']) {
+        $success = $res['msg'] . " <a href='login.php'>Đăng nhập ngay</a>";
+        $_SESSION['uid'] = $res['uid'];
+        $_SESSION['user'] = $_POST['username'] ?? '';
     } else {
-        if ($password !== $confirm) {
-            $error = "Mật khẩu nhập lại không khớp.";
-        } else {
-            // VULN 1: SQL Injection khi insert
-            // Không escape, không prepared statement
-            // Lưu plaintext password
-            $sql = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
-            if ($conn->query($sql) === TRUE) {
-                // Lấy id mới tạo
-                $uid = $conn->insert_id;
-
-                // VULN 2: Set cookie chứa plaintext credential
-                setcookie('auth_user', $uid . ':' . $username . ':' . $password, time() + 60 * 60 * 24 * 30, "/");
-
-                // VULN 3: Không regenerate session -> Session fixation
-                $_SESSION['user'] = $username;
-                $_SESSION['uid'] = $uid;
-
-                // VULN 4: Second Order SQL Injection
-                // Giả sử username được lưu và sau đó dùng trực tiếp trong câu lệnh SQL khác ở nơi khác
-                // Ví dụ: Sau đăng ký, lưu vào bảng profile nhưng concat trực tiếp
-                $bio = "Welcome " . $username; // Attacker có thể chèn SQL tại đây, sẽ nổ ở một query khác
-                $conn->query("INSERT INTO profiles (user_id, bio) VALUES ($uid, '$bio')");
-
-                $success = "Đăng ký thành công! <a href='login.php'>Đăng nhập ngay</a>";
-            } else {
-                // VULN 5: Tiết lộ lỗi DB + Query cho user
-                $error = "DB error: " . $conn->error . " -- Query: " . $sql;
-            }
-        }
+        $error = $res['msg'];
     }
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký</title>
     <link rel="stylesheet" href="assets/css/login_register.css">
+    <script>
+        // Client-side validation: chỉ giới hạn maxlength=10 cho 'name'
+        function validateForm() {
+            var name = document.getElementById('name').value || '';
+            if (name.length > 10) {
+                alert('Name không được quá 10 ký tự (client-side check).');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 
 <body>
     <a href="index.php" class="back-home">← Quay lại trang chủ</a>
     <div class="page-container">
-
         <div class="form-container">
             <h2>Đăng ký</h2>
-            <?php if ($error): ?><p class="error"><?= $error ?></p><?php endif; ?>
-            <?php if ($success): ?><p class="success"><?= $success ?></p><?php endif; ?>
-            <form method="POST">
-                <input type="text" name="username" placeholder="Tên đăng nhập">
-                <input type="password" name="password" placeholder="Mật khẩu">
-                <input type="password" name="confirm" placeholder="Nhập lại mật khẩu">
+            <?php if ($error): ?><p class="error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+            <?php if ($success): ?><p class="success"><?= htmlspecialchars($success) ?></p><?php endif; ?>
+
+            <form method="POST" onsubmit="return validateForm();">
+                <input type="text" name="username" placeholder="Tên đăng nhập" required>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+                <input type="password" name="confirm" placeholder="Nhập lại mật khẩu" required>
+                <input type="text" id="name" name="name" placeholder="Tên (tối đa 10 ký tự)" maxlength="10">
                 <button type="submit">Đăng ký</button>
             </form>
             <p>Đã có tài khoản? <a href="login.php">Đăng nhập</a></p>

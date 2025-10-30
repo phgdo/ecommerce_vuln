@@ -1,5 +1,5 @@
 <?php
-// vuln_login.php -- intentionally vulnerable (LAB ONLY)
+// public/login.php  -- intentionally vulnerable (LAB ONLY)
 
 // Ẩn warning trên giao diện, nhưng vẫn log ra file
 error_reporting(E_ALL & ~E_WARNING);
@@ -19,56 +19,30 @@ session_set_cookie_params(60 * 60 * 24 * 30);
 // Bắt đầu session (không regenerate ID) -> insecure
 session_start();
 
-require 'config/config.php'; // $conn mysqli connection
+// Include functions.php (chứa login_user() với vuln C)
+$func_path = __DIR__ . '/functions.php';
+if (!file_exists($func_path)) {
+    error_log("Missing functions include: $func_path");
+    http_response_code(500);
+    echo "Internal server error.";
+    exit;
+}
+require_once $func_path;
 
 $error = '';
 
-// Không giới hạn số lần đăng nhập, không captcha
+// Xử lý POST bằng login_user() trong functions.php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Không kiểm tra input, cho phép input cực lớn (DoS)
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    // Gọi hàm login_user (vulnerable) — hàm tự thực hiện SQL query và set cookie 'auth'
+    $res = login_user($_POST);
 
-    if ($username === '' || $password === '') {
-        $error = "Vui lòng nhập đầy đủ thông tin.";
+    if ($res['ok']) {
+        // login_user đã set cookie 'auth' và session; chuyển hướng về index
+        header('Location: index.php');
+        exit;
     } else {
-        // SQL Injection (string concat, không escape)
-        $sql = "SELECT * FROM users WHERE username = '$username'";
-        $res = $conn->query($sql);
-
-        if ($res === false) {
-            // Tiết lộ chi tiết lỗi DB và query
-            $error = "DB error: " . $conn->error . " -- Query: " . $sql;
-        } else {
-            if ($res->num_rows === 0) {
-                // Tiết lộ user không tồn tại
-                $error = "Tài khoản không tồn tại.";
-            } else {
-                $user = $res->fetch_assoc();
-
-                // So sánh mật khẩu plaintext (no hashing)
-                if ($password === $user['password']) {
-                    $_SESSION['user'] = $user['username'];
-                    $_SESSION['role'] = $user['role'];
-                    $_SESSION['uid']  = $user['id'];
-
-                    // Cookie chứa plaintext credential, không Secure/HttpOnly
-                    setcookie(
-                        'auth_user',
-                        $user['id'] . ':' . $user['username'] . ':' . $user['password'],
-                        time() + 60 * 60 * 24 * 30,
-                        "/"
-                    );
-
-                    // Cho phép đăng nhập cùng lúc trên nhiều thiết bị
-                    header('Location: index.php');
-                    exit;
-                } else {
-                    // Phân biệt sai mật khẩu
-                    $error = "Sai mật khẩu.";
-                }
-            }
-        }
+        // Hiện thông báo lỗi (đã sanitized bằng htmlspecialchars khi echo ra)
+        $error = $res['msg'];
     }
 }
 ?>
